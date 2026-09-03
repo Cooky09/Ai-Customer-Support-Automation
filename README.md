@@ -17,6 +17,13 @@ The solution consists of two connected n8n workflows:
 Together they create a complete AI-powered support pipeline capable of handling ticket creation, classification, response generation, and ticket management with minimal human intervention.
 
 ---
+## Customer Ticket Intake Workflow
+
+[!screenshots/workflow1.png](screenshots/Customer Ticket.png)
+
+## AI Customer Reply Assistant Workflow
+
+[!screenshots/workflow2.png](screenshots/AI reply Customer Service.png)
 
 ## Architecture
 
