@@ -1,0 +1,332 @@
+{
+  "name": "Customer Tickets",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "readStatus": "unread"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -848,
+        -80
+      ],
+      "id": "73755c7f-d33f-4f90-9028-f7769e61d9e2",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5pMO2WyNgEW43pFy",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Customer Email\n\nFrom:\n{{ $json.From }}\n\nSubject:\n{{ $json.Subject }}\n\nMessage:\n{{ $json.To }}\nReturn the ticket information only.",
+        "options": {
+          "systemMessage": "You are a customer service ticket creation AI.\n\nYour only job is to convert customer emails into structured support tickets.\n\nRead ONLY the email provided by the user.\n\nDo not use previous conversations.\nDo not guess missing information.\nDo not reuse previous customer details.\n\nExtract:\n\n1. customer_name\n2. customer_email\n3. subject\n4. issue_category\n5. priority\n6. summary\n7. status\n\nRules:\n\nSubject:\nExtract the exact email subject line. Do not rewrite it.\n\nCategories:\n- Billing\n- Technical Issue\n- Account Access\n- Complaint\n- Refund Request\n- Order Issue\n- General Question\n- Other\n\nPriority:\nHigh:\n- Payment problems\n- Security issues\n- Service unavailable\n\nMedium:\n- Login issues\n- Account problems\n- Product problems\n\nLow:\n- General questions\n- Feedback\n\nsummary:\nWrite a short description (1-2 sentences) explaining:\n- What happened\n- What the customer is unable to do\n- What help they need\n\nStatus:\nAlways set to \"Open\".\nIMPORTANT:\nReturn ONLY valid JSON."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -688,
+        -80
+      ],
+      "id": "71ea0c0c-ef43-4ef1-a6f6-8d859b7da506",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        96
+      ],
+      "id": "b624f877-dce8-4ec1-828a-c2708dc5908a",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "KlAXYLps7dXXh34T",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s",
+          "mode": "list",
+          "cachedResultName": "Customer Support Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $json.ticket_id }}",
+            "Date": "={{ $now.format('yyyy-MM-dd hh-mm-ss a') }}",
+            "Customer Name": "={{ $json.customer_name }}",
+            "Customer Email": "={{ $json.customer_email }}",
+            "Subject": "={{ $json.subject }}",
+            "Category": "={{ $json.issue_category }}",
+            "Priority": "={{ $json.priority }}",
+            "Summary": "={{ $json.summary }}",
+            "Status": "={{ $json.status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        -80
+      ],
+      "id": "905527f5-9cf2-45d1-a384-b3922e2442da",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4WmC7vOIf6Xq7bAk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const data = JSON.parse(item.json.output);\n\n  return {\n    json: {\n      ticket_id: \"TS\" + Date.now().toString().slice(-4),\n      ...data\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        -80
+      ],
+      "id": "092bee07-9f48-4595-a12e-0912fc22660b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Yi4gHfE6QFHPyOnV",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Yi4gHfE6QFHPyOnV",
+          "cachedResultName": "AI Customer Reply Assistant"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json['Ticket ID'] }}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "id": "ticket_id",
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        -80
+      ],
+      "id": "fad61788-7360-4a3b-9013-9a4815121a0e",
+      "name": "Call 'AI Customer Reply Assistant'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Call 'AI Customer Reply Assistant'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8ba504c6-0dc4-4ede-ba98-31546c4a3c89",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "918c50b60754f80b273884e7465fe2cf0819c8c450e436605b74f88070a30237"
+  },
+  "nodeGroups": [],
+  "id": "vuRojCOIwQtNLGwP",
+  "tags": []
+}

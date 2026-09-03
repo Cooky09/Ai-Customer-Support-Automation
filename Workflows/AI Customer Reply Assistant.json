@@ -1,0 +1,512 @@
+{
+  "name": "AI Customer Reply Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a reply email for this customer.\n\nCustomer name:\n{{$json[\"Customer Name\"]}}\n\nIssue category:\n{{$json.Category}}\n\nCustomer issue:\n{{$json.Summary}}\n\nPriority:\n{{$json.Priority}}",
+        "options": {
+          "systemMessage": "You are a professional customer support email assistant.\n\nYour task is to write a professional customer support reply using the ticket information provided.\n\nFollow this exact HTML email format:\n\n<p>Subject: Re: [Issue Subject]</p>\n\n<p>Dear [Customer Name],</p>\n\n<p>\nThank you for contacting our support team regarding your issue.\n</p>\n\n<p>\n<strong>Ticket Number:</strong> [Ticket ID]<br>\n<strong>Issue Summary:</strong> [Summary]<br>\n<strong>Priority:</strong> [Priority]\n</p>\n\n<p>\nWrite a professional response explaining the next steps.\nDo not invent solutions, refunds, discounts, or promises.\n</p>\n\n<p>\nIf you need any further assistance, please reply to this email and our team will be happy to help.\n</p>\n\n<p>\nBest Regards,<br>\nCustomer Support Team\n</p>\n\nRules:\n- Return only HTML email content.\n- Do not use markdown.\n- Do not use placeholders.\n- Do not add employee names.\n- Do not write \"Next line\" or describe formatting.\n- Keep paragraphs separated."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        560,
+        -832
+      ],
+      "id": "1a9df7da-e129-49bf-80c8-8010334f35ab",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -608
+      ],
+      "id": "5b19ed2d-f16a-466f-adb1-e1056f93a030",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "KlAXYLps7dXXh34T",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "=Customer Reply - {{ $('Get row(s) in sheet').item.json['Ticket ID'] }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        -832
+      ],
+      "id": "8b1a037d-59f8-46e7-8b99-d6a88610e56d",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "80Xrlg8GQ6YVUKnN",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{$node[\"AI Agent\"].json.output}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        -832
+      ],
+      "id": "60208d0e-92dc-4d85-9b10-796226e98008",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "80Xrlg8GQ6YVUKnN",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json['Customer Email'] }}",
+        "subject": "={{ $('Code in JavaScript').item.json.subject }}",
+        "message": "={{ $('Code in JavaScript').item.json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1584,
+        -832
+      ],
+      "id": "1b281a5d-623a-45f0-86d0-ccb7d839907b",
+      "name": "Send a message",
+      "webhookId": "fbe81b87-996c-450f-ada4-f43b556966a5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "5pMO2WyNgEW43pFy",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const emailText = items[0].json.output;\n\nconst lines = emailText.split(\"\\n\");\n\nconst subjectLine = lines.find(line => line.startsWith(\"Subject:\"));\n\nconst subject = subjectLine\n  ? subjectLine.replace(\"Subject:\", \"\").trim()\n  : \"Customer Support Response\";\n\nconst body = emailText\n  .replace(subjectLine, \"\")\n  .trim();\n\nreturn [\n  {\n    json: {\n      subject,\n      body\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        -832
+      ],
+      "id": "ae1ba917-c614-4192-adbd-401eb8ea8da5",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s",
+          "mode": "list",
+          "cachedResultName": "Customer Support Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $('Get row(s) in sheet').item.json['Ticket ID'] }}",
+            "Status": "Responded"
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2032,
+        -832
+      ],
+      "id": "617776e5-a609-46a7-b8c8-68ba21cb0b05",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4WmC7vOIf6Xq7bAk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7805c8f3-3960-4082-bddc-301b2f878842",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Open",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        336,
+        -832
+      ],
+      "id": "0d92c67f-71ef-45e9-8f16-4f0db3afc17c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ticket_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        -832
+      ],
+      "id": "fe0acd83-503d-4954-8077-94e52c73dd29",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s",
+          "mode": "list",
+          "cachedResultName": "Customer Support Details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        112,
+        -832
+      ],
+      "id": "372ec39b-542b-44cc-a37d-16f2b021f1c0",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4WmC7vOIf6Xq7bAk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Update a document').item.json.documentId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1808,
+        -832
+      ],
+      "id": "40691b2b-6283-45c6-a132-ee6d292dff65",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lHrBnmFiyS5A1h1K",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8fe0fd48-5b79-4322-b946-7621c254d462",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "918c50b60754f80b273884e7465fe2cf0819c8c450e436605b74f88070a30237"
+  },
+  "nodeGroups": [],
+  "id": "Yi4gHfE6QFHPyOnV",
+  "tags": []
+}
