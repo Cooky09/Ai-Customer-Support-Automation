@@ -24,7 +24,7 @@
       "name": "Gmail Trigger",
       "credentials": {
         "gmailOAuth2": {
-          "id": "5pMO2WyNgEW43pFy",
+          "id": "",
           "name": "Gmail account"
         }
       }
@@ -61,7 +61,7 @@
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
-          "id": "KlAXYLps7dXXh34T",
+          "id": "",
           "name": "Groq account"
         }
       }
@@ -74,14 +74,14 @@
           "value": "134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s",
           "mode": "list",
           "cachedResultName": "Customer Support Details",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit?usp=drivesdk"
+          "cachedResultUrl": ""
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/134mfRz1j8CEMqtaMwgjusYwQkQiR4Hj6bSv8UpNb49s/edit#gid=0"
+          "cachedResultUrl": ""
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -195,7 +195,7 @@
       "name": "Append row in sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "4WmC7vOIf6Xq7bAk",
+          "id": "",
           "name": "Google Sheets account"
         }
       }
@@ -324,7 +324,7 @@
   "versionId": "8ba504c6-0dc4-4ede-ba98-31546c4a3c89",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "918c50b60754f80b273884e7465fe2cf0819c8c450e436605b74f88070a30237"
+    "instanceId": ""
   },
   "nodeGroups": [],
   "id": "vuRojCOIwQtNLGwP",
