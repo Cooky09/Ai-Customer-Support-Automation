@@ -19,11 +19,11 @@ Together they create a complete AI-powered support pipeline capable of handling 
 ---
 ## Customer Ticket Intake Workflow
 
-[!screenshots/workflow1.png](screenshots/Customer Ticket.png)
+[!Screenshots/ai-customer-reply.png](Screenshots/ai-reply-customer-service.png)
 
 ## AI Customer Reply Assistant Workflow
 
-[!screenshots/workflow2.png](screenshots/AI reply Customer Service.png)
+[!Screenshots/ai-customer-reply.png](Screenshots/customer-ticket.png)
 
 ## Architecture
 
